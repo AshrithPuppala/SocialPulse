@@ -15,7 +15,7 @@ def analyze_topic_with_gemini(topic, depth='medium'):
     """Use Gemini to analyze public sentiment on a topic"""
     
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         prompt = f"""You are a social sentiment analyst. Analyze public opinion about: "{topic}"
 
