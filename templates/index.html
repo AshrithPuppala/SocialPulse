@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Pulse Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="number"] {
+            width: 150px;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .results {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card.positive {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+
+        .stat-card.negative {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+
+        .stat-card.neutral {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .perspectives {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .perspective {
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .perspective.positive {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+
+        .perspective.negative {
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+
+        .perspective h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .example {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .example-text {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .example-meta {
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .perspectives {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            input[type="number"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Social Pulse Calculator</h1>
+            <p>Discover what people really think about any topic</p>
+            <p style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-top: 10px;">
+                ⚡ Powered by Gemini 2.0 Flash - AI-driven sentiment analysis
+            </p>
+        </div>
+
+        <div class="search-box">
+            <div class="input-group">
+                <input type="text" id="topicInput" placeholder="Enter a topic (e.g., electric cars, remote work, AI)" />
+                <input type="number" id="postLimit" value="50" min="10" max="100" placeholder="Posts" />
+                <button id="analyzeBtn" onclick="analyzeTopic()">Analyze</button>
+            </div>
+            <small style="color: #666;">Tip: More posts = more accurate results (but slower)</small>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <p>🔍 Analyzing Reddit discussions...</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">This may take 5-15 seconds</p>
+        </div>
+
+        <div id="error" style="display: none;"></div>
+
+        <div id="results" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        async function analyzeTopic() {
+            const topic = document.getElementById('topicInput').value.trim();
+            const postLimit = document.getElementById('postLimit').value;
+
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ topic, post_limit: postLimit })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+
+                displayResults(data);
+            } catch (error) {
+                document.getElementById('error').innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+                document.getElementById('error').style.display = 'block';
+            } finally {
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            let positiveExamples = '';
+            data.positive_perspective.examples.forEach(ex => {
+                positiveExamples += `
+                    <div class="example">
+                        <div class="example-text">"${ex.text}"</div>
+                        <div class="example-meta">👍 ${ex.score} points • by ${ex.author} • ${ex.created}</div>
+                    </div>
+                `;
+            });
+
+            let negativeExamples = '';
+            data.negative_perspective.examples.forEach(ex => {
+                negativeExamples += `
+                    <div class="example">
+                        <div class="example-text">"${ex.text}"</div>
+                        <div class="example-meta">👎 ${ex.score} points • by ${ex.author} • ${ex.created}</div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = `
+                <div class="results">
+                    <h2 style="margin-bottom: 20px;">Results for: "${data.topic}"</h2>
+                    <p style="margin-bottom: 20px; color: #666;">
+                        AI-powered sentiment analysis
+                        ${data.powered_by ? '<span style="color: #4285f4; font-weight: bold;">• ' + data.powered_by + '</span>' : ''}
+                    </p>
+                    ${data.analysis_summary ? '<div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4285f4;"><strong>📊 Analysis:</strong> ' + data.analysis_summary + '</div>' : ''}
+
+                    <div class="stats">
+                        <div class="stat-card positive">
+                            <div class="stat-number">${data.sentiment_distribution.positive}%</div>
+                            <div class="stat-label">Positive</div>
+                        </div>
+                        <div class="stat-card negative">
+                            <div class="stat-number">${data.sentiment_distribution.negative}%</div>
+                            <div class="stat-label">Negative</div>
+                        </div>
+                        <div class="stat-card neutral">
+                            <div class="stat-number">${data.sentiment_distribution.neutral}%</div>
+                            <div class="stat-label">Neutral</div>
+                        </div>
+                    </div>
+
+                    <div class="perspectives">
+                        <div class="perspective positive">
+                            <h3>✅ Positive Perspective (${data.positive_perspective.percentage}%)</h3>
+                            <p style="margin-bottom: 15px;">${data.positive_perspective.count} people expressed positive views</p>
+                            ${positiveExamples || '<p>No positive examples found</p>'}
+                        </div>
+
+                        <div class="perspective negative">
+                            <h3>❌ Negative Perspective (${data.negative_perspective.percentage}%)</h3>
+                            <p style="margin-bottom: 15px;">${data.negative_perspective.count} people expressed negative views</p>
+                            ${negativeExamples || '<p>No negative examples found</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.style.display = 'block';
+        }
+
+        document.getElementById('topicInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                analyzeTopic();
+            }
+        });
+    </script>
+</body>
+</html>
